@@ -1,0 +1,30 @@
+import { BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { TOKENS_TYPE } from "src/config/txn";
+import { User } from "src/users/users.model";
+
+
+@Table
+export class Txn extends Model {
+    @PrimaryKey
+    @Column({ type: DataType.UUID, defaultValue: DataType.UUIDV4 })
+    declare id: string;
+
+    @ForeignKey(() => User)
+    @Column({type: DataType.UUID})
+    declare usrId: string;
+
+    @Column({type: DataType.ENUM(TOKENS_TYPE.bnb, TOKENS_TYPE.usdt)})
+    declare token: string;
+
+    @Column({type: DataType.DOUBLE})
+    declare amount: number;
+
+    @Column({type: DataType.DOUBLE})
+    declare usdValue: number;
+
+    @Column
+    declare hash: string;
+
+    @BelongsTo(() => User)
+    user: User;
+}
