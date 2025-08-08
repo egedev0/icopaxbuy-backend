@@ -38,7 +38,7 @@ export class UsersService {
             ]
         });
     }
-    async findUserByAddress (address: string): Promise<User | null> {
+    async findUserByAddress(address: string): Promise<User | null> {
         return this.users.findOne({
             where: {
                 address: {
@@ -52,6 +52,11 @@ export class UsersService {
         return this.users.findAll({
             limit: 50,
             order: [['invested', 'DESC']],
+            where: {
+                invested: {
+                    [Op.gt]: 0  // invested greater than 0
+                }
+            }
         })
     }
 }
