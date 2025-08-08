@@ -1,5 +1,5 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
-import { TOKENS_TYPE } from "src/config/txn";
+import { TOKENS_TYPE, TXNS_TYPE } from "src/config/txn";
 import { User } from "src/users/users.model";
 
 
@@ -24,6 +24,12 @@ export class Txn extends Model {
 
     @Column
     declare hash: string;
+
+    @Column
+    declare isVesting: boolean;
+
+    @Column({type: DataType.ENUM(TXNS_TYPE.buy, TXNS_TYPE.referral), defaultValue: TXNS_TYPE.buy})
+    declare type : string;
 
     @BelongsTo(() => User)
     user: User;

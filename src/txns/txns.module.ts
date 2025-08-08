@@ -1,9 +1,14 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TxnsController } from './txns.controller';
 import { TxnsService } from './txns.service';
+import { txnsProviders } from './txns.providers';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   controllers: [TxnsController],
-  providers: [TxnsService]
+  providers: [TxnsService, ...txnsProviders],
+  imports: [
+    forwardRef(() => UsersModule)
+  ]
 })
 export class TxnsModule {}

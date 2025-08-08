@@ -27,4 +27,24 @@ export class UsersService {
         });
         return user;
     }
+
+    async findUserById(id: string): Promise<User | null> {
+        return this.users.findByPk(id, {
+            include: [
+                {
+                    model: User,
+                    as: 'referrer'
+                }
+            ]
+        });
+    }
+    async findUserByAddress (address: string): Promise<User | null> {
+        return this.users.findOne({
+            where: {
+                address: {
+                    [Op.iLike]: address.toLowerCase()
+                }
+            }
+        })
+    }
 }

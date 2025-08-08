@@ -21,4 +21,7 @@ export class User extends Model {
 
     @HasMany(() => User, "referredById")
     referredUsers: User[];
+
+    @Column({type: DataType.DOUBLE, defaultValue: 0})
+    declare invested: number;
 }
