@@ -47,4 +47,11 @@ export class UsersService {
             }
         })
     }
+
+    async getLeaderboard(): Promise<User[]> {
+        return this.users.findAll({
+            limit: 50,
+            order: [['invested', 'DESC']],
+        })
+    }
 }

@@ -31,6 +31,13 @@ export class Txn extends Model {
     @Column({type: DataType.ENUM(TXNS_TYPE.buy, TXNS_TYPE.referral), defaultValue: TXNS_TYPE.buy})
     declare type : string;
 
-    @BelongsTo(() => User)
+    @ForeignKey(() => User)
+    @Column({type: DataType.UUID})
+    declare refereeId: string;
+
+    @BelongsTo(() => User, "usrId")
     user: User;
+
+    @BelongsTo(() => User, "refereeId")
+    referee: User;
 }

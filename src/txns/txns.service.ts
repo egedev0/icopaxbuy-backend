@@ -24,10 +24,32 @@ export class TxnsService {
                     type: TXNS_TYPE.referral,
                     amount: data.amount * 5 / 100,
                     usdValue: data.amount * 5 / 100,
-                    usrId: referrer.id
-                })
+                    usrId: referrer.id,
+                    refereeId: data.usrId
+                });
             }
         }
         return this.txns.create(data);
+    }
+
+    async findBuyTxns(usrId: string): Promise<Txn[]> {
+        return this.txns.findAll({
+            where: {
+                usrId,
+                type: TXNS_TYPE.buy,
+            },
+            order: [['createdAt', 'DESC']], // order from newest to oldest
+        });
+    }
+
+
+    async findReferrals(usrId: string): Promise<Txn[]> {
+        return this.txns.findAll({
+            where: {
+                usrId,
+                type: TXNS_TYPE.referral
+            },
+            order: [['createdAt', 'DESC']], // order from newest to oldest
+        })
     }
 }

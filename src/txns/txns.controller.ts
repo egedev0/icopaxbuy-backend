@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { TxnsService } from './txns.service';
 import { CreateTxnDto } from './txns.dto';
 
@@ -11,6 +11,18 @@ export class TxnsController {
     @Post('create')
     async createTxn (@Body() body: CreateTxnDto) {
         const res = await this.txnService.create(body);
+        return res;
+    }
+
+    @Get('buy/:id')
+    async getBuyTxns(@Param('id') id: string) {
+        const res = await this.txnService.findBuyTxns(id);
+        return res;
+    }
+
+    @Get('referral/:id')
+    async getReferrals(@Param('id') id: string) {
+        const res = await this.txnService.findReferrals(id);
         return res;
     }
 }
