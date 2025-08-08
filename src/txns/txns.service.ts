@@ -3,6 +3,7 @@ import { Txn } from './txns.model';
 import { CreateTxnDto } from './txns.dto';
 import { UsersService } from 'src/users/users.service';
 import { TXNS_TYPE } from 'src/config/txn';
+import { User } from 'src/users/users.model';
 
 @Injectable()
 export class TxnsService {
@@ -50,6 +51,12 @@ export class TxnsService {
                 type: TXNS_TYPE.referral
             },
             order: [['createdAt', 'DESC']], // order from newest to oldest
+            include: [
+                {
+                    model: User,
+                    as: 'referee'
+                }
+            ]
         })
     }
 }
