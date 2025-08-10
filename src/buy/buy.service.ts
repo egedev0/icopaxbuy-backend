@@ -20,10 +20,9 @@ export class BuyService {
         const nonce = Math.floor(Date.now() / 1000);
         const referrer = !!user.referrer ? user.referrer.address : ZeroAddress;
         if (token === TOKENS_TYPE.usdt) {
-            // Order: (usdtAmount, isVesting, referrer, nonce, user)
             const hash = ethers.solidityPackedKeccak256(
-                ["uint256", "bool", "address", "uint256", "address"],
-                [parseEther(amount), isVesting, referrer, nonce, address]
+                ["address", "uint256", "bool", "address", "uint256"],
+                [address, parseEther(amount), isVesting, referrer, nonce]
             );
             const messageHashBinary = arrayify(hash);
             // Sign RAW digest (no EIP-191 prefix)
@@ -38,29 +37,15 @@ export class BuyService {
             }
         } else {
             const price = await getBinancePrice("WBNB");
-            // Order: (price, isVesting, referrer, nonce, user)
             const hash = ethers.solidityPackedKeccak256(
-                ["uint256", "bool", "address", "uint256", "address"],
-                [parseEther(price), isVesting, referrer, nonce, address]
+                ["address", "uint256", "bool", "address", "uint256"],
+                [address, parseEther(amount), isVesting, referrer, nonce]
             );
             const messageHashBinary = arrayify(hash);
             // Sign RAW digest (no EIP-191 prefix)
             const signingKey = new SigningKey((signer as Wallet).privateKey);
             const sigObj = signingKey.sign(messageHashBinary);
             const signature = Signature.from(sigObj).serialized;
-            
-            // Debug log
-            console.log('ETH signing (price-based):', {
-                address,
-                amount,
-                amountWei: parseEther(amount).toString(),
-                isVesting,
-                referrer,
-                nonce,
-                hash: hash,
-                signature
-            });
-            
             return {
                 nonce,
                 signature,
