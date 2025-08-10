@@ -12,7 +12,7 @@ export class BuyService {
         @Inject(forwardRef(() => UsersService))
         private readonly userService: UsersService
     ) { }
-    async generateSignature(usrId: string, amount: string, token: string) {
+    async generateSignature(usrId: string, amount: string, token: string, isVesting: boolean) {
         const usr = await this.userService.findUserById(usrId);
         const user = await usr?.get({ plain: true });
         if (!user) throw new NotFoundException("Invalid user");
@@ -21,8 +21,8 @@ export class BuyService {
         const referrer = !!user.referrer ? user.referrer.address : ZeroAddress;
         if (token === TOKENS_TYPE.usdt) {
             const hash = ethers.solidityPackedKeccak256(
-                ["address", "uint256", "address", "uint256"],
-                [address, parseEther(amount), referrer, nonce]
+                ["address", "uint256", "bool", "address", "uint256"],
+                [address, parseEther(amount), isVesting, referrer, nonce]
             );
             const messageHashBinary = arrayify(hash);
             const signature = await signer.signMessage(messageHashBinary);
@@ -35,8 +35,8 @@ export class BuyService {
         } else {
             const price = await getBinancePrice("WBNB");
             const hash = ethers.solidityPackedKeccak256(
-                ["address", "uint256", "address", "uint256"],
-                [address, parseEther(price), referrer, nonce]
+                ["address", "uint256", "bool", "address", "uint256"],
+                [address, parseEther(price), isVesting, referrer, nonce]
             );
             const messageHashBinary = arrayify(hash);
             const signature = await signer.signMessage(messageHashBinary);

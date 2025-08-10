@@ -12,7 +12,8 @@ export class BuyController {
         const res = await this.buyService.generateSignature(
             id,
             amount,
-            token
+            token,
+            isVesting
         );
         return res;
     }
