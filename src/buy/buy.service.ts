@@ -19,16 +19,33 @@ export class BuyService {
         const address = user.address;
         const nonce = Math.floor(Date.now() / 1000);
         const referrer = !!user.referrer ? user.referrer.address : ZeroAddress;
+        
+        // Log signer address for debugging
+        console.log('Backend signer address:', signer.address);
         if (token === TOKENS_TYPE.usdt) {
+            // Log parameters for debugging
+            console.log('USDT Signing parameters:', {
+                address,
+                amount: parseEther(amount).toString(),
+                isVesting,
+                referrer,
+                nonce
+            });
+            
             const hash = ethers.solidityPackedKeccak256(
                 ["address", "uint256", "bool", "address", "uint256"],
                 [address, parseEther(amount), isVesting, referrer, nonce]
             );
+            
+            console.log('USDT Hash to sign:', hash);
+            
             const messageHashBinary = arrayify(hash);
             // Sign RAW digest (no EIP-191 prefix)
             const signingKey = new SigningKey((signer as Wallet).privateKey);
             const sigObj = signingKey.sign(messageHashBinary);
             const signature = Signature.from(sigObj).serialized;
+            
+            console.log('USDT Generated signature:', signature);
             return {
                 nonce,
                 signature,
@@ -37,15 +54,30 @@ export class BuyService {
             }
         } else {
             const price = await getBinancePrice("WBNB");
+            
+            // Log parameters for debugging
+            console.log('Signing parameters:', {
+                address,
+                amount: parseEther(amount).toString(),
+                isVesting,
+                referrer,
+                nonce
+            });
+            
             const hash = ethers.solidityPackedKeccak256(
                 ["address", "uint256", "bool", "address", "uint256"],
                 [address, parseEther(amount), isVesting, referrer, nonce]
             );
+            
+            console.log('Hash to sign:', hash);
+            
             const messageHashBinary = arrayify(hash);
             // Sign RAW digest (no EIP-191 prefix)
             const signingKey = new SigningKey((signer as Wallet).privateKey);
             const sigObj = signingKey.sign(messageHashBinary);
             const signature = Signature.from(sigObj).serialized;
+            
+            console.log('Generated signature:', signature);
             return {
                 nonce,
                 signature,
