@@ -38,9 +38,8 @@ export class BuyService {
             
             console.log('USDT Hash to sign:', hash);
             
-            // Try direct signing without EIP-191 prefix (raw signature)
-            const digest = ethers.getBytes(hash);
-            const signature = signer.signingKey.sign(digest).serialized;
+            // EIP-191 prefixed signature
+            const signature = await signer.signMessage(ethers.getBytes(hash));
             
             console.log('USDT Generated signature:', signature);
             return {
@@ -63,14 +62,13 @@ export class BuyService {
             
             const hash = ethers.solidityPackedKeccak256(
                 ["address", "uint256", "bool", "address", "uint256"],
-                [address, parseEther(amount), isVesting, referrer, nonce]
+                [address, parseEther(price), isVesting, referrer, nonce]
             );
             
             console.log('Hash to sign:', hash);
             
-            // Try direct signing without EIP-191 prefix (raw signature)
-            const digest = ethers.getBytes(hash);
-            const signature = signer.signingKey.sign(digest).serialized;
+            // EIP-191 prefixed signature
+            const signature = await signer.signMessage(ethers.getBytes(hash));
             
             console.log('Generated signature:', signature);
             return {
