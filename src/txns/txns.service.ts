@@ -1,9 +1,9 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Txn } from './txns.model';
 import { CreateTxnDto } from './txns.dto';
-import { UsersService } from 'src/users/users.service';
-import { TXNS_TYPE } from 'src/config/txn';
-import { User } from 'src/users/users.model';
+import { UsersService } from '../users/users.service';
+import { TXNS_TYPE } from '../config/txn';
+import { User } from '../users/users.model';
 
 @Injectable()
 export class TxnsService {

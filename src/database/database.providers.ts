@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize-typescript';
-import { Txn } from 'src/txns/txns.model';
-import { User } from 'src/users/users.model';
+import { Txn } from '../txns/txns.model';
+import { User } from '../users/users.model';
 
 
 export const databaseProviders = [

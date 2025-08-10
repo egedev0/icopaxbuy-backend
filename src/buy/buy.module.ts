@@ -1,7 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { BuyController } from './buy.controller';
 import { BuyService } from './buy.service';
-import { UsersModule } from 'src/users/users.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   controllers: [BuyController],

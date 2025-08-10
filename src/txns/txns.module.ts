@@ -2,7 +2,7 @@ import { forwardRef, Module } from '@nestjs/common';
 import { TxnsController } from './txns.controller';
 import { TxnsService } from './txns.service';
 import { txnsProviders } from './txns.providers';
-import { UsersModule } from 'src/users/users.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   controllers: [TxnsController],

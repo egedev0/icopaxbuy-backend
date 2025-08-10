@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
-import { TOKENS_TYPE, TXNS_TYPE } from "src/config/txn";
-import { User } from "src/users/users.model";
+import { TOKENS_TYPE, TXNS_TYPE } from "../config/txn";
+import { User } from "../users/users.model";
 
 
 @Table
