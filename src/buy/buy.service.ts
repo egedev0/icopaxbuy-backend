@@ -37,11 +37,10 @@ export class BuyService {
             }
         } else {
             const price = await getBinancePrice("WBNB");
-            // Sign over the actual ETH amount being sent, not the price
-            // Contract verifies msg.sender, ethAmount, vesting, referrer, nonce
+            // Contract expects price in the signed payload (not the sent ETH amount)
             const hash = ethers.solidityPackedKeccak256(
                 ["address", "uint256", "bool", "address", "uint256"],
-                [address, parseEther(amount), isVesting, referrer, nonce]
+                [address, parseEther(price), isVesting, referrer, nonce]
             );
             const messageHashBinary = arrayify(hash);
             // Sign RAW digest (no EIP-191 prefix)
@@ -50,7 +49,7 @@ export class BuyService {
             const signature = Signature.from(sigObj).serialized;
             
             // Debug log
-            console.log('ETH signing:', {
+            console.log('ETH signing (price-based):', {
                 address,
                 amount,
                 amountWei: parseEther(amount).toString(),
