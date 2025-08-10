@@ -51,7 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).send('ICOPAX API OK');
   }
   // DB health that does not require Nest bootstrap
-  if (url === '/db/health') {
+  if (url === '/db/health' || url === '/api/db/health') {
     const databaseUrl = process.env.DATABASE_URL;
     if (!databaseUrl) {
       return res.status(500).json({ ok: false, error: 'DATABASE_URL is not set' });
