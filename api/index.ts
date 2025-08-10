@@ -7,16 +7,43 @@ import serverlessExpress from '@vendia/serverless-express';
 
 let server: ReturnType<typeof serverlessExpress> | undefined;
 
+const ALLOWED_ORIGINS = [
+  'https://www.buy.icopax.com',
+  'https://buy.icopax.com',
+  'https://icopax.com',
+  'https://www.icopax.com'
+];
+
 async function bootstrapServer() {
   const expressApp = express();
   const nestApp = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
-  nestApp.enableCors();
+  nestApp.enableCors({
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true);
+      cb(null, ALLOWED_ORIGINS.includes(origin));
+    },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization',
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+  });
   await nestApp.init();
   return serverlessExpress({ app: expressApp });
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const url = (req.url || '').split('?')[0];
+  const reqOrigin = (req.headers['origin'] as string) || '';
+  const allow = !reqOrigin || ALLOWED_ORIGINS.includes(reqOrigin);
+  if (allow && reqOrigin) {
+    res.setHeader('Access-Control-Allow-Origin', reqOrigin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  }
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
   // Lightweight health/root endpoints without bootstrapping Nest
   if (url === '/' || url === '/health' || url === '/api' || url === '/api/health') {
     res.setHeader('content-type', 'text/plain; charset=utf-8');
