@@ -7,6 +7,8 @@ export const databaseProviders = [
   {
     provide: 'SEQUELIZE',
     useFactory: async () => {
+      const useSsl = String(process.env.DB_SSL).toLowerCase() === 'true';
+      const rejectUnauthorized = String(process.env.DB_SSL_REJECT_UNAUTHORIZED ?? 'false').toLowerCase() === 'true';
       const sequelize = new Sequelize({
         dialect: 'postgres',
         host: process.env.DB_HOST,
@@ -14,7 +16,15 @@ export const databaseProviders = [
         username: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DATABASE,
-        logging: false
+        logging: false,
+        dialectOptions: useSsl
+          ? {
+              ssl: {
+                require: true,
+                rejectUnauthorized
+              }
+            }
+          : {}
       });
       sequelize.addModels([
         User,
