@@ -1,6 +1,6 @@
 import { arrayify } from '@ethersproject/bytes';
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { ethers, parseEther, ZeroAddress } from 'ethers';
+import { ethers, parseEther, ZeroAddress, SigningKey, Signature, Wallet } from 'ethers';
 import { signer } from '../config/signer';
 import { TOKENS_TYPE } from '../config/txn';
 import { UsersService } from '../users/users.service';
@@ -25,7 +25,10 @@ export class BuyService {
                 [address, parseEther(amount), isVesting, referrer, nonce]
             );
             const messageHashBinary = arrayify(hash);
-            const signature = await signer.signMessage(messageHashBinary);
+            // Sign RAW digest (no EIP-191 prefix)
+            const signingKey = new SigningKey((signer as Wallet).privateKey);
+            const sigObj = signingKey.sign(messageHashBinary);
+            const signature = Signature.from(sigObj).serialized;
             return {
                 nonce,
                 signature,
@@ -39,7 +42,10 @@ export class BuyService {
                 [address, parseEther(price), isVesting, referrer, nonce]
             );
             const messageHashBinary = arrayify(hash);
-            const signature = await signer.signMessage(messageHashBinary);
+            // Sign RAW digest (no EIP-191 prefix)
+            const signingKey = new SigningKey((signer as Wallet).privateKey);
+            const sigObj = signingKey.sign(messageHashBinary);
+            const signature = Signature.from(sigObj).serialized;
             return {
                 nonce,
                 signature,
