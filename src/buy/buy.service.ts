@@ -1,6 +1,5 @@
-import { arrayify } from '@ethersproject/bytes';
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { ethers, parseEther, ZeroAddress, SigningKey, Signature, Wallet } from 'ethers';
+import { ethers, parseEther, ZeroAddress } from 'ethers';
 import { signer } from '../config/signer';
 import { TOKENS_TYPE } from '../config/txn';
 import { UsersService } from '../users/users.service';
@@ -39,11 +38,9 @@ export class BuyService {
             
             console.log('USDT Hash to sign:', hash);
             
-            const messageHashBinary = arrayify(hash);
-            // Sign RAW digest (no EIP-191 prefix)
-            const signingKey = new SigningKey((signer as Wallet).privateKey);
-            const sigObj = signingKey.sign(messageHashBinary);
-            const signature = Signature.from(sigObj).serialized;
+            // Try direct signing without EIP-191 prefix (raw signature)
+            const digest = ethers.getBytes(hash);
+            const signature = signer.signingKey.sign(digest).serialized;
             
             console.log('USDT Generated signature:', signature);
             return {
@@ -71,11 +68,9 @@ export class BuyService {
             
             console.log('Hash to sign:', hash);
             
-            const messageHashBinary = arrayify(hash);
-            // Sign RAW digest (no EIP-191 prefix)
-            const signingKey = new SigningKey((signer as Wallet).privateKey);
-            const sigObj = signingKey.sign(messageHashBinary);
-            const signature = Signature.from(sigObj).serialized;
+            // Try direct signing without EIP-191 prefix (raw signature)
+            const digest = ethers.getBytes(hash);
+            const signature = signer.signingKey.sign(digest).serialized;
             
             console.log('Generated signature:', signature);
             return {
