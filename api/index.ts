@@ -3,10 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../src/app.module';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express, { Request, Response } from 'express';
-import serverlessExpress from '@vendia/serverless-express';
 import { Client } from 'pg';
 
-let server: ReturnType<typeof serverlessExpress> | undefined;
+let cachedExpressApp: ReturnType<typeof express> | undefined;
 
 const ALLOWED_ORIGINS = [
   'https://www.buy.icopax.com',
@@ -16,6 +15,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 async function bootstrapServer() {
+  if (cachedExpressApp) return cachedExpressApp;
   const expressApp = express();
   const nestApp = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
   nestApp.enableCors({
@@ -29,7 +29,8 @@ async function bootstrapServer() {
     optionsSuccessStatus: 204
   });
   await nestApp.init();
-  return serverlessExpress({ app: expressApp });
+  cachedExpressApp = expressApp;
+  return cachedExpressApp;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -70,9 +71,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url === '/favicon.ico' || url === '/favicon.png') {
     return res.status(204).end();
   }
-  if (!server) {
-    server = await bootstrapServer();
-  }
-  return server(req as unknown as Request, res as unknown as Response);
+  const app = await bootstrapServer();
+  return app(req as unknown as Request, res as unknown as Response);
 }
 
