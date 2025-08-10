@@ -1,6 +1,7 @@
 import { Controller, Get, Inject } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Sequelize } from 'sequelize-typescript';
+import { signer } from './config/signer';
 
 @Controller()
 export class AppController {
@@ -23,5 +24,11 @@ export class AppController {
     } catch (e: any) {
       return { ok: false, error: e?.message ?? 'unknown' };
     }
+  }
+
+  @Get('signer')
+  async signerAddress() {
+    const address = await signer.getAddress();
+    return { address };
   }
 }
