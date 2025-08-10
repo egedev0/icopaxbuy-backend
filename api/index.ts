@@ -4,6 +4,7 @@ import { AppModule } from '../src/app.module';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express, { Request, Response } from 'express';
 import serverlessExpress from '@vendia/serverless-express';
+import { Client } from 'pg';
 
 let server: ReturnType<typeof serverlessExpress> | undefined;
 
@@ -48,6 +49,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url === '/' || url === '/health' || url === '/api' || url === '/api/health') {
     res.setHeader('content-type', 'text/plain; charset=utf-8');
     return res.status(200).send('ICOPAX API OK');
+  }
+  // DB health that does not require Nest bootstrap
+  if (url === '/db/health') {
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      return res.status(500).json({ ok: false, error: 'DATABASE_URL is not set' });
+    }
+    const client = new Client({ connectionString: databaseUrl, ssl: { rejectUnauthorized: false } });
+    try {
+      await client.connect();
+      await client.query('SELECT 1');
+      await client.end();
+      return res.status(200).json({ ok: true });
+    } catch (e: any) {
+      try { await client.end(); } catch {}
+      return res.status(500).json({ ok: false, error: e?.message ?? 'unknown' });
+    }
   }
   if (url === '/favicon.ico' || url === '/favicon.png') {
     return res.status(204).end();
