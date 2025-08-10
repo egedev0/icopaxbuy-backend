@@ -1,10 +1,10 @@
 import { arrayify } from '@ethersproject/bytes';
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ethers, parseEther, ZeroAddress } from 'ethers';
-import { signer } from 'src/config/signer';
-import { TOKENS_TYPE } from 'src/config/txn';
-import { UsersService } from 'src/users/users.service';
-import { getBinancePrice } from 'src/utils/binance.utils';
+import { signer } from '../config/signer';
+import { TOKENS_TYPE } from '../config/txn';
+import { UsersService } from '../users/users.service';
+import { getBinancePrice } from '../utils/binance.utils';
 
 @Injectable()
 export class BuyService {

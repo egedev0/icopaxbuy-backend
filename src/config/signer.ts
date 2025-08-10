@@ -1,4 +1,4 @@
-import { getSigner } from "src/utils/evm.utils";
+import { getSigner } from "../utils/evm.utils";
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY ?? "";
 if (!PRIVATE_KEY) {
