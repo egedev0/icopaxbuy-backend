@@ -20,9 +20,10 @@ export class BuyService {
         const nonce = Math.floor(Date.now() / 1000);
         const referrer = !!user.referrer ? user.referrer.address : ZeroAddress;
         if (token === TOKENS_TYPE.usdt) {
+            // Order: (usdtAmount, isVesting, referrer, nonce, user)
             const hash = ethers.solidityPackedKeccak256(
-                ["address", "uint256", "bool", "address", "uint256"],
-                [address, parseEther(amount), isVesting, referrer, nonce]
+                ["uint256", "bool", "address", "uint256", "address"],
+                [parseEther(amount), isVesting, referrer, nonce, address]
             );
             const messageHashBinary = arrayify(hash);
             // Sign RAW digest (no EIP-191 prefix)
@@ -37,10 +38,10 @@ export class BuyService {
             }
         } else {
             const price = await getBinancePrice("WBNB");
-            // Contract expects price in the signed payload (not the sent ETH amount)
+            // Order: (price, isVesting, referrer, nonce, user)
             const hash = ethers.solidityPackedKeccak256(
-                ["address", "uint256", "bool", "address", "uint256"],
-                [address, parseEther(price), isVesting, referrer, nonce]
+                ["uint256", "bool", "address", "uint256", "address"],
+                [parseEther(price), isVesting, referrer, nonce, address]
             );
             const messageHashBinary = arrayify(hash);
             // Sign RAW digest (no EIP-191 prefix)
