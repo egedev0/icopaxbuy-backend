@@ -4,6 +4,7 @@ import { AppModule } from '../src/app.module';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express, { Request, Response } from 'express';
 import { Client } from 'pg';
+import { Wallet } from 'ethers';
 
 let cachedExpressApp: ReturnType<typeof express> | undefined;
 
@@ -50,6 +51,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (url === '/' || url === '/health' || url === '/api' || url === '/api/health') {
     res.setHeader('content-type', 'text/plain; charset=utf-8');
     return res.status(200).send('ICOPAX API OK');
+  }
+  if (url === '/debug/signer') {
+    try {
+      const pk = process.env.PRIVATE_KEY;
+      if (!pk) return res.status(500).json({ error: 'PRIVATE_KEY not set' });
+      const w = new Wallet(pk);
+      return res.status(200).json({ address: w.address });
+    } catch (e: any) {
+      return res.status(500).json({ error: e?.message ?? 'unknown' });
+    }
   }
   // DB health that does not require Nest bootstrap
   if (url === '/db/health' || url === '/api/db/health') {
