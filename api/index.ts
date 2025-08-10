@@ -8,12 +8,39 @@ import { Wallet } from 'ethers';
 
 let cachedExpressApp: ReturnType<typeof express> | undefined;
 
-const ALLOWED_ORIGINS = [
+// Allow-list can be overridden via env (comma separated). Fallback covers prod, localhost and vercel previews
+const DEFAULT_ALLOWED_ORIGINS = [
   'https://www.buy.icopax.com',
   'https://buy.icopax.com',
   'https://icopax.com',
-  'https://www.icopax.com'
+  'https://www.icopax.com',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5173'
 ];
+const ENV_ALLOWED = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+const ALLOWED_ORIGINS = (ENV_ALLOWED.length ? ENV_ALLOWED : DEFAULT_ALLOWED_ORIGINS);
+
+// Additionally allow common preview host patterns
+const ALLOWED_SUFFIXES = [
+  '.vercel.app', // any vercel preview or production
+  '.icopax.com'
+];
+
+const isAllowedOrigin = (origin?: string) => {
+  if (!origin) return true; // non-browser or server-to-server
+  try {
+    const url = new URL(origin);
+    const normalized = `${url.protocol}//${url.host}`;
+    if (ALLOWED_ORIGINS.includes(normalized)) return true;
+    return ALLOWED_SUFFIXES.some(suf => normalized.endsWith(suf));
+  } catch {
+    return false;
+  }
+};
 
 async function bootstrapServer() {
   if (cachedExpressApp) return cachedExpressApp;
@@ -22,7 +49,7 @@ async function bootstrapServer() {
   nestApp.enableCors({
     origin: (origin, cb) => {
       if (!origin) return cb(null, true);
-      cb(null, ALLOWED_ORIGINS.includes(origin));
+      cb(null, isAllowedOrigin(origin));
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type,Authorization',
@@ -37,7 +64,7 @@ async function bootstrapServer() {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const url = (req.url || '').split('?')[0];
   const reqOrigin = (req.headers['origin'] as string) || '';
-  const allow = !reqOrigin || ALLOWED_ORIGINS.includes(reqOrigin);
+  const allow = isAllowedOrigin(reqOrigin);
   if (allow && reqOrigin) {
     res.setHeader('Access-Control-Allow-Origin', reqOrigin);
     res.setHeader('Vary', 'Origin');
