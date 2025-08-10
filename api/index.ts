@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../src/app.module';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import serverlessExpress from '@vendia/serverless-express';
 
 let server: ReturnType<typeof serverlessExpress> | undefined;
@@ -19,6 +19,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!server) {
     server = await bootstrapServer();
   }
-  return server(req as any, res as any);
+  return server(req as unknown as Request, res as unknown as Response);
 }
 
