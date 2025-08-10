@@ -48,6 +48,19 @@ export class BuyService {
             const signingKey = new SigningKey((signer as Wallet).privateKey);
             const sigObj = signingKey.sign(messageHashBinary);
             const signature = Signature.from(sigObj).serialized;
+            
+            // Debug log
+            console.log('ETH signing:', {
+                address,
+                amount,
+                amountWei: parseEther(amount).toString(),
+                isVesting,
+                referrer,
+                nonce,
+                hash: hash,
+                signature
+            });
+            
             return {
                 nonce,
                 signature,
