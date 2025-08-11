@@ -47,7 +47,8 @@ export class BuyService {
                 nonce,
                 signature,
                 referrer,
-                price: 1
+                price: 1,
+                backendSigner: signer.address
             }
         } else {
             const price = await getBinancePrice("WBNB");
@@ -77,7 +78,8 @@ export class BuyService {
                 nonce,
                 signature,
                 referrer,
-                price
+                price,
+                backendSigner: signer.address
             }
         }
     }
