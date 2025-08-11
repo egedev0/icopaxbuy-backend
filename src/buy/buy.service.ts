@@ -31,9 +31,10 @@ export class BuyService {
                 nonce
             });
             
+            // abi.encodePacked(buyer, amount, referrer, nonce)
             const hash = ethers.solidityPackedKeccak256(
-                ["address", "uint256", "bool", "address", "uint256"],
-                [address, parseEther(amount), isVesting, referrer, nonce]
+                ["address", "uint256", "address", "uint256"],
+                [address, parseEther(amount), referrer, nonce]
             );
             
             console.log('USDT Hash to sign:', hash);
@@ -60,9 +61,10 @@ export class BuyService {
                 nonce
             });
             
+            // abi.encodePacked(buyer, price, referrer, nonce)
             const hash = ethers.solidityPackedKeccak256(
-                ["address", "uint256", "bool", "address", "uint256"],
-                [address, parseEther(price), isVesting, referrer, nonce]
+                ["address", "uint256", "address", "uint256"],
+                [address, parseEther(price), referrer, nonce]
             );
             
             console.log('Hash to sign:', hash);
