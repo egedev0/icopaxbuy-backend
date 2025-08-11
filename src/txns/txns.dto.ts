@@ -9,3 +9,14 @@ export type CreateTxnDto = {
     isVesting: boolean;
     referrer: string | null;
 }
+
+export type CreateReferralPayoutDto = {
+  usrId: string;
+  toAddress: string;
+  amountUsd: number;
+};
+
+export type UpdateReferralPayoutDto = {
+  txHash?: string;
+  status?: 'pending' | 'completed' | 'failed';
+};

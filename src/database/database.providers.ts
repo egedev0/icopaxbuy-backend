@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize-typescript';
 import { Txn } from '../txns/txns.model';
+import { ReferralPayout } from '../txns/referral-payout.model';
 import { User } from '../users/users.model';
 
 
@@ -35,10 +36,11 @@ export const databaseProviders = [
           });
       sequelize.addModels([
         User,
-        Txn
+        Txn,
+        ReferralPayout,
       ]);
       await sequelize.sync();
       return sequelize;
     },
   },
-];
+];  
