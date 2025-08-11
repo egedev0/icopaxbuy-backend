@@ -24,4 +24,8 @@ export class User extends Model {
 
     @Column({type: DataType.DOUBLE, defaultValue: 0})
     declare invested: number;
+
+    // Optional custom referral rate in percent (e.g., 5 for 5%)
+    @Column({ type: DataType.DOUBLE, allowNull: true })
+    declare customReferralPct?: number | null;
 }

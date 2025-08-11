@@ -20,11 +20,12 @@ export class TxnsService {
         if (!!data.referrer) {
             const referrer = await this.userService.findUserByAddress(data.referrer);
             if (!!referrer) {
+                const pct = (referrer.customReferralPct ?? 5) / 100;
                 await this.txns.create({
                     ...data,
                     type: TXNS_TYPE.referral,
-                    amount: data.amount * 5 / 100,
-                    usdValue: data.amount * 5 / 100,
+                    amount: data.amount * pct,
+                    usdValue: data.usdValue * pct,
                     usrId: referrer.id,
                     refereeId: data.usrId
                 });
@@ -58,5 +59,17 @@ export class TxnsService {
                 }
             ]
         })
+    }
+
+    async claimReferrals(usrId: string) {
+        const unclaimed = await this.txns.findAll({
+            where: { usrId, type: TXNS_TYPE.referral, isClaimed: false }
+        });
+        let total = 0;
+        for (const r of unclaimed) {
+            total += r.usdValue;
+            await r.update({ isClaimed: true, claimedAt: new Date() });
+        }
+        return { ok: true, claimedCount: unclaimed.length, totalUsd: total };
     }
 }
