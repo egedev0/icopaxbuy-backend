@@ -17,20 +17,24 @@ export class TxnsService {
     async create(data: CreateTxnDto) {
         const user = await this.userService.findUserById(data.usrId);
         await user?.increment({ invested: data.usdValue });
-        if (!!data.referrer) {
-            const referrer = await this.userService.findUserByAddress(data.referrer);
-            if (!!referrer) {
-                const usdReward = Number((data.usdValue * 0.05).toFixed(2));
-                await this.txns.create({
-                    ...data,
-                    type: TXNS_TYPE.referral,
-                    // reward tracked in USD for consistency across tokens
-                    amount: usdReward,
-                    usdValue: usdReward,
-                    usrId: referrer.id,
-                    refereeId: data.usrId
-                });
-            }
+        // Prefer explicit referrer address from payload; otherwise fall back to stored referredById
+        let referrerUser: User | null = null;
+        if (data.referrer) {
+            referrerUser = await this.userService.findUserByAddress(data.referrer);
+        }
+        if (!referrerUser && user?.referredById) {
+            referrerUser = await this.userService.findUserById(user.referredById);
+        }
+        if (referrerUser) {
+            const usdReward = Number((data.usdValue * 0.05).toFixed(2));
+            await this.txns.create({
+                ...data,
+                type: TXNS_TYPE.referral,
+                amount: usdReward,
+                usdValue: usdReward,
+                usrId: referrerUser.id,
+                refereeId: data.usrId
+            });
         }
         return this.txns.create(data);
     }

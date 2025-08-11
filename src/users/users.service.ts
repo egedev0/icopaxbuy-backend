@@ -34,7 +34,14 @@ export class UsersService {
                 }
             }
         });
-        if (!!user) return user;
+        // If user already exists, set referredById if it's not set yet and we resolved a valid ref id
+        if (!!user) {
+            if (!user.referredById && resolvedRefId) {
+                user.set('referredById', resolvedRefId);
+                await user.save();
+            }
+            return user;
+        }
         user = await this.users.create({
             address,
             referredById: resolvedRefId
