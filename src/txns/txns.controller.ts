@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { TxnsService } from './txns.service';
 import { CreateTxnDto } from './txns.dto';
 
@@ -26,10 +26,10 @@ export class TxnsController {
         return res;
     }
 
-    // Claim all unclaimed referral rewards for a user (no admin approval)
-    @Put('referral/claim/:id')
-    async claimReferrals(@Param('id') id: string) {
-        const res = await this.txnService.claimReferrals(id);
-        return res;
-    }
+  // Preview-only aggregation endpoint used by some clients; returns totals
+  @Get('referral/:id/claim')
+  async claimReferrals(@Param('id') id: string) {
+    const res = await this.txnService.claimReferrals(id);
+    return res;
+  }
 }

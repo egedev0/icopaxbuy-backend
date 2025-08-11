@@ -61,4 +61,11 @@ export class TxnsService {
             ]
         })
     }
+
+    // Optional: claim aggregation endpoint logic (stub returning totals)
+    async claimReferrals(usrId: string) {
+        const list = await this.findReferrals(usrId);
+        const totalUsd = list.reduce((s, t) => s + (Number(t.usdValue) || 0), 0);
+        return { count: list.length, totalUsd };
+    }
 }
