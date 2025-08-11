@@ -40,10 +40,4 @@ export class Txn extends Model {
 
     @BelongsTo(() => User, "refereeId")
     referee: User;
-
-    @Column({ type: DataType.BOOLEAN, defaultValue: false })
-    declare isClaimed: boolean;
-
-    @Column({ type: DataType.DATE, allowNull: true })
-    declare claimedAt?: Date | null;
 }
