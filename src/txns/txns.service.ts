@@ -1,18 +1,15 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Txn } from './txns.model';
-import { CreateReferralPayoutDto, CreateTxnDto, UpdateReferralPayoutDto } from './txns.dto';
+import { CreateTxnDto } from './txns.dto';
 import { UsersService } from '../users/users.service';
 import { TXNS_TYPE } from '../config/txn';
 import { User } from '../users/users.model';
-import { ReferralPayout, REFERRAL_PAYOUT_STATUS } from './referral-payout.model';
 
 @Injectable()
 export class TxnsService {
     constructor(
         @Inject('TXNS_REPOSITORY')
         private txns: typeof Txn,
-    @Inject('REFERRAL_PAYOUT_REPOSITORY')
-    private referralPayouts: typeof ReferralPayout,
         @Inject(forwardRef(() => UsersService))
         private readonly userService: UsersService
     ) { }
@@ -42,31 +39,6 @@ export class TxnsService {
         return this.txns.create(data);
     }
 
-  async requestReferralPayout(data: CreateReferralPayoutDto) {
-    // basic guard: ensure user exists
-    const user = await this.userService.findUserById(data.usrId);
-    if (!user) throw new Error('User not found');
-    // TODO: optionally check available referral balance >= amountUsd
-    return this.referralPayouts.create({
-      usrId: data.usrId,
-      toAddress: data.toAddress,
-      amountUsd: data.amountUsd,
-      status: REFERRAL_PAYOUT_STATUS.pending,
-    });
-  }
-
-  async listReferralPayouts(usrId: string) {
-    return this.referralPayouts.findAll({ where: { usrId }, order: [['createdAt', 'DESC']] });
-  }
-
-  async updateReferralPayout(id: string, body: UpdateReferralPayoutDto) {
-    const payout = await this.referralPayouts.findByPk(id);
-    if (!payout) throw new Error('Payout not found');
-    if (body.txHash !== undefined) payout.set('txHash', body.txHash);
-    if (body.status !== undefined) payout.set('status', body.status as any);
-    await payout.save();
-    return payout;
-  }
     async findBuyTxns(usrId: string): Promise<Txn[]> {
         return this.txns.findAll({
             where: {
