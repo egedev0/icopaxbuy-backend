@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize-typescript';
 import { Txn } from '../txns/txns.model';
 import { User } from '../users/users.model';
+import { Setting } from '../settings/settings.model';
 
 
 export const databaseProviders = [
@@ -35,7 +36,8 @@ export const databaseProviders = [
           });
       sequelize.addModels([
         User,
-        Txn
+        Txn,
+        Setting
       ]);
       await sequelize.sync();
       return sequelize;
